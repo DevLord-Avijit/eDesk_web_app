@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "./store/store";
+import { useAppDispatch } from "./store/store";
 import { useEffect } from "react";
 import { checkAuth } from "./features/auth.slice";
 import Layout from "./components/layout";
@@ -21,33 +21,18 @@ const Loading = React.lazy(() => import("./components/loading"));
 const ChatPage = React.lazy(() => import("./pages/chats"));
 
 function App() {
-  const loggedIn = useAppSelector((s) => s.auth.isLoggedIn);
-  const isVerifying = useAppSelector((s) => s.auth.isVerifying);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
   }, []);
 
-  if (isVerifying) {
-    return <Loading />;
-  }
-
+  // Always render all routes, bypassing login session
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={loggedIn ? <Navigate to="/" replace /> : <Login />}
-      />
-      <Route
-        path="/hrm/*"
-        element={loggedIn ? <HrmApp /> : <Navigate to="/login" replace />}
-      />
-
-      <Route
-        path="/"
-        element={loggedIn ? <Layout /> : <Navigate to="/login" replace />}
-      >
+      <Route path="/login" element={<Login />} />
+      <Route path="/hrm/*" element={<HrmApp />} />
+      <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="events/:eventId" element={<Home />} />
         <Route path="events" element={<EventsPage />} />

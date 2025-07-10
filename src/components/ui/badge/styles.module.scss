@@ -1,5 +1,5 @@
 // Badge.module.scss
-@import 'bootstrap/scss/bootstrap';
+@use 'bootstrap/scss/bootstrap' as *;
 
 .badge {
   display: inline-flex;

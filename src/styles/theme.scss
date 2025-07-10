@@ -84,7 +84,11 @@ $gradient-aurora: linear-gradient(135deg, #22c55e 0%, #06b6d4 25%, #8b5cf6 50%, 
 $gradient-glass-light: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
 $gradient-glass-dark: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 100%);
 
-@import "../../node_modules/bootstrap/scss/bootstrap";
+// Override Bootstrap variables BEFORE importing bootstrap
+$primary: #5f46e3; // or your custom color
+
+// Import Bootstrap without 'as *'
+@use "../../node_modules/bootstrap/scss/bootstrap";
 
 
 .p-6 { padding: 1.5rem !important; }

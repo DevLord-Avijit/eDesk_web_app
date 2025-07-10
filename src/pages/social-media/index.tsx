@@ -23,40 +23,60 @@ export default function SocialMediaManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPlatform, setFilterPlatform] = useState("");
 
-  useEffect(() => {
-    fetchAssets();
-    fetchUsers();
-  }, []);
-
   const fetchAssets = async () => {
+    let isMounted = true;
     try {
       setLoading(true);
       const response = await smAssetService.getAllAccounts();
-      setAssets(response.data);
-      setError(null);
+      if (isMounted) {
+        setAssets(response.data);
+        setError(null);
+      }
     } catch (err) {
-      console.error("Error fetching social media assets:", err);
-      setError("Failed to load social media assets. Please try again later.");
+      if (isMounted) {
+        console.error("Error fetching social media assets:", err);
+        setError("Failed to load social media assets. Please try again later.");
+      }
     } finally {
-      setLoading(false);
+      if (isMounted) setLoading(false);
     }
   };
 
   const fetchUsers = async () => {
+    let isMounted = true;
     try {
       setUsersLoading(true);
       const response = await userService.getAllUsers();
-      setUsers(response.data);
-      setUsersError(null);
+      if (isMounted) {
+        setUsers(response.data);
+        setUsersError(null);
+      }
     } catch (err) {
-      console.error("Error fetching users:", err);
-      setUsersError(
-        "Failed to load user data. Manager information may be incomplete."
-      );
+      if (isMounted) {
+        console.error("Error fetching users:", err);
+        setUsersError(
+          "Failed to load user data. Manager information may be incomplete."
+        );
+      }
     } finally {
-      setUsersLoading(false);
+      if (isMounted) setUsersLoading(false);
     }
   };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchAll = async () => {
+      await fetchAssets();
+      await fetchUsers();
+    };
+
+    fetchAll();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const platforms = [...new Set(assets.map((asset) => asset.platform))];
 

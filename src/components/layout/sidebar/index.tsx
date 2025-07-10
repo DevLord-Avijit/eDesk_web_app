@@ -25,8 +25,9 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
     eventService.getAllEvents().then((res) => {
-      if (res.status === "success") {
+      if (res.status === "success" && isMounted) {
         setSideBarItems(transformEvents(res.data));
       }
     });
@@ -38,10 +39,14 @@ const Sidebar = () => {
         },
       })
       .then((res) => {
-        if (res.status === "success") {
+        if (res.status === "success" && isMounted) {
           setVideoItems(res.data);
         }
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleTabChange = (tab: "events" | "recents") => {

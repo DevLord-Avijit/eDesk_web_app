@@ -1,4 +1,5 @@
-@import './chat.scss';
+@use './chat.scss'; // preferred (but needs changes in chat.scss too)
+
 
 html {
   font-size: 14px;

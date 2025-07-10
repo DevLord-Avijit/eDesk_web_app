@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import eventGroupService from "../../services/api-services/event-group.service";
 import eventService from "../../services/api-services/event.service";
 import { EventResponse, EventGroupResponse } from "../../types/event.types";
@@ -26,22 +26,35 @@ const EventsPage: React.FC = () => {
   } | null>(null);
   const [newEventGroup, setNewEventGroup] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchEventData = async (): Promise<void> => {
-    try {
-      const eventGroupsRes = await eventGroupService.getAllEventGroups();
-      setEventGroups(eventGroupsRes.data);
+  const fetchEventData = useCallback(
+    async (isMounted: { current: boolean }) => {
+      try {
+        const eventGroupsRes = await eventGroupService.getAllEventGroups();
+        if (isMounted.current) setEventGroups(eventGroupsRes.data);
 
-      const eventsRes = await eventService.getAllEvents();
-      setEvents(eventsRes.data);
-    } catch {
-      toast.error("Failed to fetch event data");
-    }
-  };
+        const eventsRes = await eventService.getAllEvents();
+        if (isMounted.current) setEvents(eventsRes.data);
+
+        if (isMounted.current) setError(null);
+      } catch {
+        if (isMounted.current) {
+          setError("Failed to fetch event data");
+          toast.error("Failed to fetch event data");
+        }
+      }
+    },
+    []
+  );
 
   useEffect(() => {
-    fetchEventData();
-  }, []);
+    const isMounted = { current: true };
+    fetchEventData(isMounted);
+    return () => {
+      isMounted.current = false;
+    };
+  }, [fetchEventData]);
 
   const handleAddEventGroup = async (): Promise<void> => {
     if (!newEventGroup) {
@@ -393,6 +406,9 @@ const EventsPage: React.FC = () => {
             </div>
           </div>
         </div>
+        {error && (
+          <div className="alert alert-danger text-center my-4">{error}</div>
+        )}
       </div>
 
       {/* Event Modal */}
@@ -404,7 +420,7 @@ const EventsPage: React.FC = () => {
           onSuccess={() => {
             fetchEventData();
             handleCloseEventModal();
-          }}
+          }}            
         />
       )}
     </div>
